@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essential Digital Skills Introduction</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #eef2f3; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .form-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 600px; border-top: 6px solid #005eb8; position: relative; }
+        h1 { color: #005eb8; font-size: 24px; margin-bottom: 5px; }
+        p.subtitle { color: #666; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .field-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        .hint { display: block; font-size: 0.85em; color: #d9534f; margin-bottom: 8px; font-style: italic; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        .row { display: flex; gap: 15px; }
+        .btn-postcode { padding: 10px 20px; background: #005eb8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .hidden { display: none; }
+        .submit-btn { width: 100%; padding: 15px; background: #007f3b; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        
+        /* Timer Styles */
+        #timer-box { margin-top: 20px; padding: 15px; background: #333; color: #00ff00; font-family: monospace; font-size: 20px; border-radius: 8px; border: 2px solid #555; }
+        .timer-label { font-size: 12px; color: #aaa; text-transform: uppercase; display: block; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h1>Essential Digital Skills Introduction</h1>
+    <p class="subtitle">Time-limited Data Entry Assessment</p>
+    
+    <form id="edsForm" onsubmit="processForm(event)">
+        
+        <div class="field-group">
+            <label for="title">Title</label>
+            <span class="hint">Instruction: Select your formal title.</span>
+            <select id="title" required>
+                <option value="">-- Select Title --</option>
+                <option>Mr</option><option>Mrs</option><option>Miss</option><option>Ms</option>
+                <option>Mstr</option><option>HRH</option><option>Lord</option><option>Lady</option>
+                <option>Dame</option><option>Sir</option><option>Other</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="field-group" style="flex:1;">
+                <label for="fname">First Name</label>
+                <span class="hint">Instruction: Must start with a Capital (e.g. David).</span>
+                <input type="text" id="fname" required>
+            </div>
+            <div class="field-group" style="flex:1;">
+                <label for="mname">Middle Name</label>
+                <span class="hint">Instruction: Must start with a Capital.</span>
+                <input type="text" id="mname">
+            </div>
+        </div>
+
+        <div class="field-group">
+            <label for="sname">Surname</label>
+            <span class="hint">Instruction: MUST BE ALL CAPITAL LETTERS.</span>
+            <input type="text" id="sname" required>
+        </div>
+
+        <div class="field-group">
+            <label for="nickname">Please Call Me...</label>
+            <span class="hint">Instruction: Preferred informal name.</span>
+            <input type="text" id="nickname">
+        </div>
+
+        <div class="field-group">
+            <label for="secureCode">Security Code</label>
+            <span class="hint">Instruction: 16 numbers in blocks of 4 (e.g. 1111 2222 3333 4444).</span>
+            <input type="text" id="secureCode" required>
+        </div>
+
+        <div class="field-group">
+            <label for="football">Football Team Supported</label>
+            <span class="hint">Instruction: Select from the list.</span>
+            <select id="football" required>
+                <option value="">-- Choose Option --</option>
+                <option>Chelsea</option>
+                <option>Chelsea Ladies</option>
+                <option>Manchester United ( I'm not interested in football)</option>
+                <option>Liverpool ( I'm from Basingstoke)</option>
+                <option>Other</option>
+            </select>
+        </div>
+
+        <div class="field-group">
+            <label for="postcode">Postcode</label>
+            <span class="hint">Instruction: MUST BE CAPITAL LETTERS with a space (e.g. GU34 5BH).</span>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="postcode" required>
+                <button type="button" class="btn-postcode" onclick="findAddress()">Find Address</button>
+            </div>
+        </div>
+
+        <div id="addressBox" class="field-group hidden">
+            <label>Select Address</label>
+            <select id="addressDropdown">
+                <option value="">-- Select an address --</option>
+                <option>101 Mockingbird Lane, Fakesville</option>
+                <option>Flat 4, Imagine House, Nowhere Road</option>
+                <option>The Digital Skills Hub, Internet Street</option>
+            </select>
+        </div>
+
+        <div class="field-group">
+            <label>Date of Birth</label>
+            <div class="row">
+                <select id="dobDay" style="flex:1;" required><option value="">Day</option></select>
+                <select id="dobMonth" style="flex:1;" required><option value="">Month</option></select>
+                <select id="dobYear" style="flex:1;" required><option value="">Year</option></select>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Submit Registration</button>
+    </form>
+</div>
+
+<div id="timer-box">
+    <span class="timer-label">Assessment Clock</span>
+    <span id="display">00:00:00</span>
+</div>
+
+<script>
+    // Timer Logic
+    let startTime;
+    let timerInterval;
+
+    window.onload = function() {
+        startTime = Date.now();
+        timerInterval = setInterval(updateTimer, 10);
+    };
+
+    function updateTimer() {
+        let elapsedTime = Date.now() - startTime;
+        let diffHrs = elapsedTime / 3600000;
+        let hh = Math.floor(diffHrs);
+        let diffMin = (diffHrs - hh) * 60;
+        let mm = Math.floor(diffMin);
+        let diffSec = (diffMin - mm) * 60;
+        let ss = Math.floor(diffSec);
+        let diffMs = (diffSec - ss) * 100;
+        let ms = Math.floor(diffMs);
+
+        let formattedMM = mm.toString().padStart(2, "0");
+        let formattedSS = ss.toString().padStart(2, "0");
+        let formattedMS = ms.toString().padStart(2, "0");
+
+        document.getElementById("display").innerHTML = `${formattedMM}:${formattedSS}:${formattedMS}`;
+    }
+
+    // Populate DOB dropdowns
+    const d = document.getElementById('dobDay');
+    for(let i=1; i<=31; i++) d.options.add(new Option(i, i));
+    const m = document.getElementById('dobMonth');
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    months.forEach((month, index) => m.options.add(new Option(month, index+1)));
+    const y = document.getElementById('dobYear');
+    for(let i=2024; i>=1930; i--) y.options.add(new Option(i, i));
+
+    function findAddress() {
+        const pc = document.getElementById('postcode').value.trim();
+        const hasSpace = pc.includes(" ");
+        const isAllUpper = (pc === pc.toUpperCase());
+        const isLongEnough = pc.length >= 5;
+
+        if(hasSpace && isAllUpper && isLongEnough) {
+            document.getElementById('addressBox').classList.remove('hidden');
+        } else {
+            alert("Error: Postcode must be in CAPITAL LETTERS and include a space (e.g. GU34 5BH).");
+        }
+    }
+
+    function processForm(e) {
+        e.preventDefault();
+        
+        const fname = document.getElementById('fname').value;
+        const mname = document.getElementById('mname').value;
+        const sname = document.getElementById('sname').value;
+        const secureCode = document.getElementById('secureCode').value;
+        const address = document.getElementById('addressDropdown').value;
+
+        if (fname.charAt(0) !== fname.charAt(0).toUpperCase() || fname === "") {
+            alert("Error: First Name must start with a Capital letter.");
+            return;
+        }
+
+        if (mname !== "" && mname.charAt(0) !== mname.charAt(0).toUpperCase()) {
+            alert("Error: Middle Name must start with a Capital letter.");
+            return;
+        }
+
+        if (sname !== sname.toUpperCase() || sname.length < 2) {
+            alert("Error: Surname must be in ALL CAPITAL LETTERS.");
+            return;
+        }
+
+        const codePattern = /^[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}$/;
+        if (!codePattern.test(secureCode)) {
+            alert("Error: Security Code must be 16 digits in blocks of 4 with spaces.");
+            return;
+        }
+
+        if (address === "") {
+            alert("Error: You must click 'Find Address' and select an address from the list.");
+            return;
+        }
+
+        // Stop Timer and show result
+        clearInterval(timerInterval);
+        const finalTime = document.getElementById("display").innerText;
+        alert(`Assessment Complete!\n\nYour Time: ${finalTime}\n\nAll skills verified successfully.`);
+    }
+</script>
+
+</body>
+</html>
